@@ -1,10 +1,14 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 
 const Home = () => {
   return (
     <SafeAreaView>
-      <Text>Home</Text>
+      <View>
+        <Text>
+          Homefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };
