@@ -10,7 +10,6 @@ import { useSignIn } from "@clerk/clerk-expo";
 const SignIn = () => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
-
   const [form, setForm] = useState({
     email: "",
     password: "",
