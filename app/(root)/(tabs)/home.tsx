@@ -11,7 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import RideCard from "@/components/RideCard";
 import { icons, images } from "@/constants";
-import GoogleTextInput from "@/components/GoogleTextInput";
+// import GoogleTextInput from "@/components/GoogleTextInput";
+import CustomTextInput from "@/components/CustomTextInput";
 import Map from "@/components/Map";
 import { useLocationStore } from "@/store";
 import { useEffect, useState } from "react";
@@ -206,7 +207,12 @@ export default function Page() {
                 <Image source={icons.out} className="w-4 h-4" />
               </TouchableOpacity>
             </View>
-            <GoogleTextInput
+            {/*<GoogleTextInput*/}
+            {/*  icon={icons.search}*/}
+            {/*  containerStyle="bg-white shadow-md shadow-neutral-300"*/}
+            {/*  handlePress={handleDestinationPress}*/}
+            {/*/>*/}
+            <CustomTextInput
               icon={icons.search}
               containerStyle="bg-white shadow-md shadow-neutral-300"
               handlePress={handleDestinationPress}

@@ -1,10 +1,18 @@
 import { Text, View } from "react-native";
+import { useLocationStore } from "@/store";
+import RideLayout from "@/components/RideLayout";
 
 const FindRide = () => {
+  const {
+    userAddress,
+    destinationAddress,
+    setDestinationLocation,
+    setUserLocation,
+  } = useLocationStore();
   return (
-    <View>
-      <Text>FindRide</Text>
-    </View>
+    <RideLayout>
+      <Text className="text-2xl">Find Ride</Text>
+    </RideLayout>
   );
 };
 export default FindRide;

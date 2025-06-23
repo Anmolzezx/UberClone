@@ -137,3 +137,9 @@ declare interface DriverCardProps {
   selected: number;
   setSelected: () => void;
 }
+type NominatimResult = {
+  place_id: string;
+  display_name: string;
+  lat: string;
+  lon: string;
+};
