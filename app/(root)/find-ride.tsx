@@ -1,6 +1,10 @@
 import { Text, View } from "react-native";
 import { useLocationStore } from "@/store";
 import RideLayout from "@/components/RideLayout";
+import CustomTextInput from "@/components/CustomTextInput";
+import { icons } from "@/constants";
+import CustomButton from "@/components/CustomButton";
+import { router } from "expo-router";
 
 const FindRide = () => {
   const {
@@ -10,8 +14,32 @@ const FindRide = () => {
     setUserLocation,
   } = useLocationStore();
   return (
-    <RideLayout>
-      <Text className="text-2xl">Find Ride</Text>
+    <RideLayout title="Ride" snapPoints={["85%"]}>
+      <View className="my-3">
+        <Text className="text-lg font-JakartaSemiBold mb-3">From</Text>
+        <CustomTextInput
+          icon={icons.target}
+          initialLocation={userAddress!}
+          containerStyle="bg-neutral-100"
+          textInputBackgroundColor="#f5f5f5"
+          handlePress={(location) => setUserLocation(location)}
+        />
+      </View>
+      <View className="my-3">
+        <Text className="text-lg font-JakartaSemiBold mb-3">To</Text>
+        <CustomTextInput
+          icon={icons.map}
+          initialLocation={destinationAddress!}
+          containerStyle="bg-neutral-100"
+          textInputBackgroundColor="transparent"
+          handlePress={(location) => setDestinationLocation(location)}
+        />
+      </View>
+      <CustomButton
+        title="Find now"
+        onPress={() => router.push("/(root)/confirm-ride")}
+        className="mt-5"
+      />
     </RideLayout>
   );
 };
