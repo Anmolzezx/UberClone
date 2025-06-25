@@ -1,7 +1,7 @@
 import { Driver, MarkerData } from "@/types/type";
 
 const directionsAPI = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
-
+// const orsApiKey = process.env.EXPO_PUBLIC_ORS_API_KEY;
 export const generateMarkersFromData = ({
   data,
   userLatitude,
@@ -118,4 +118,62 @@ export const calculateDriverTimes = async ({
   } catch (error) {
     console.error("Error calculating driver times:", error);
   }
+
+  // try {
+  //   const timesPromises = markers.map(async (marker) => {
+  //     // 1. Time from driver → user
+  //     const resToUser = await fetch(
+  //       "https://api.openrouteservice.org/v2/directions/driving-car",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${orsApiKey}`,
+  //         },
+  //         body: JSON.stringify({
+  //           coordinates: [
+  //             [marker.longitude, marker.latitude],
+  //             [userLongitude, userLatitude],
+  //           ],
+  //         }),
+  //       },
+  //     );
+  //
+  //     const dataToUser = await resToUser.json();
+  //     const durationToUser =
+  //       dataToUser?.features?.[0]?.properties?.segments?.[0]?.duration || 0; // In seconds
+  //
+  //     // 2. Time from user → destination
+  //     const resToDestination = await fetch(
+  //       "https://api.openrouteservice.org/v2/directions/driving-car",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${orsApiKey}`,
+  //         },
+  //         body: JSON.stringify({
+  //           coordinates: [
+  //             [userLongitude, userLatitude],
+  //             [destinationLongitude, destinationLatitude],
+  //           ],
+  //         }),
+  //       },
+  //     );
+  //
+  //     const dataToDestination = await resToDestination.json();
+  //     const durationToDestination =
+  //       dataToDestination?.features?.[0]?.properties?.segments?.[0]?.duration ||
+  //       0;
+  //
+  //     const totalTime = (durationToUser + durationToDestination) / 60; // minutes
+  //     const price = (totalTime * 0.5).toFixed(2);
+  //
+  //     return { ...marker, time: totalTime, price };
+  //   });
+
+  //   return await Promise.all(timesPromises);
+  // } catch (error) {
+  //   console.error("Error calculating driver times (ORS):", error);
+  // }
 };

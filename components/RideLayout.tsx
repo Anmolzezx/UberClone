@@ -56,14 +56,11 @@ const RideLayout = ({
           index={0}
         >
           <BottomSheetView style={{ flex: 1, padding: 20 }}>
-            <KeyboardAwareScrollView
-              enableOnAndroid
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ flexGrow: 1, padding: 20 }}
-              extraScrollHeight={200}
-            >
-              {children}
-            </KeyboardAwareScrollView>
+            {/*enableOnAndroid*/}
+            {/*keyboardShouldPersistTaps="handled"*/}
+            {/*contentContainerStyle={{ flexGrow: 1, padding: 20 }}*/}
+            {/*extraScrollHeight={200}*/}
+            <View style={{ flex: 1 }}>{children}</View>
           </BottomSheetView>
         </BottomSheet>
       </View>
