@@ -1,7 +1,6 @@
 import { Driver, MarkerData } from "@/types/type";
 
 const directionsAPI = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
-// const orsApiKey = process.env.EXPO_PUBLIC_ORS_API_KEY;
 export const generateMarkersFromData = ({
   data,
   userLatitude,
@@ -72,6 +71,53 @@ export const calculateRegion = ({
   };
 };
 
+// export const calculateDriverTimes = async ({
+//   markers,
+//   userLatitude,
+//   userLongitude,
+//   destinationLatitude,
+//   destinationLongitude,
+// }: {
+//   markers: MarkerData[];
+//   userLatitude: number | null;
+//   userLongitude: number | null;
+//   destinationLatitude: number | null;
+//   destinationLongitude: number | null;
+// }) => {
+//   if (
+//     !userLatitude ||
+//     !userLongitude ||
+//     !destinationLatitude ||
+//     !destinationLongitude
+//   )
+//     return;
+//
+//   try {
+//     const timesPromises = markers.map(async (marker) => {
+//       const responseToUser = await fetch(
+//         `https://maps.googleapis.com/maps/api/directions/json?origin=${marker.latitude},${marker.longitude}&destination=${userLatitude},${userLongitude}&key=${directionsAPI}`,
+//       );
+//       const dataToUser = await responseToUser.json();
+//       const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
+//
+//       const responseToDestination = await fetch(
+//         `https://maps.googleapis.com/maps/api/directions/json?origin=${userLatitude},${userLongitude}&destination=${destinationLatitude},${destinationLongitude}&key=${directionsAPI}`,
+//       );
+//       const dataToDestination = await responseToDestination.json();
+//       const timeToDestination =
+//         dataToDestination.routes[0].legs[0].duration.value; // Time in seconds
+//
+//       const totalTime = (timeToUser + timeToDestination) / 60; // Total time in minutes
+//       const price = (totalTime * 0.5).toFixed(2); // Calculate price based on time
+//
+//       return { ...marker, time: totalTime, price };
+//     });
+//
+//     return await Promise.all(timesPromises);
+//   } catch (error) {
+//     console.error("Error calculating driver times:", error);
+//   }
+
 export const calculateDriverTimes = async ({
   markers,
   userLatitude,
@@ -85,6 +131,8 @@ export const calculateDriverTimes = async ({
   destinationLatitude: number | null;
   destinationLongitude: number | null;
 }) => {
+  const orsApiKey = process.env.EXPO_PUBLIC_ORS_API_KEY;
+
   if (
     !userLatitude ||
     !userLongitude ||
@@ -95,85 +143,62 @@ export const calculateDriverTimes = async ({
 
   try {
     const timesPromises = markers.map(async (marker) => {
-      const responseToUser = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${marker.latitude},${marker.longitude}&destination=${userLatitude},${userLongitude}&key=${directionsAPI}`,
+      // 1. From driver → user
+      const resToUser = await fetch(
+        "https://api.openrouteservice.org/v2/directions/driving-car",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${orsApiKey}`,
+          },
+          body: JSON.stringify({
+            coordinates: [
+              [marker.longitude, marker.latitude],
+              [userLongitude, userLatitude],
+            ],
+          }),
+        },
       );
-      const dataToUser = await responseToUser.json();
-      const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
 
-      const responseToDestination = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${userLatitude},${userLongitude}&destination=${destinationLatitude},${destinationLongitude}&key=${directionsAPI}`,
+      const dataToUser = await resToUser.json();
+      const durationToUser =
+        dataToUser?.features?.[0]?.properties?.segments?.[0]?.duration || 0;
+
+      // 2. From user → destination
+      const resToDestination = await fetch(
+        "https://api.openrouteservice.org/v2/directions/driving-car",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${orsApiKey}`,
+          },
+          body: JSON.stringify({
+            coordinates: [
+              [userLongitude, userLatitude],
+              [destinationLongitude, destinationLatitude],
+            ],
+          }),
+        },
       );
-      const dataToDestination = await responseToDestination.json();
-      const timeToDestination =
-        dataToDestination.routes[0].legs[0].duration.value; // Time in seconds
 
-      const totalTime = (timeToUser + timeToDestination) / 60; // Total time in minutes
-      const price = (totalTime * 0.5).toFixed(2); // Calculate price based on time
+      const dataToDestination = await resToDestination.json();
+      const durationToDestination =
+        dataToDestination?.features?.[0]?.properties?.segments?.[0]?.duration ||
+        0;
 
-      return { ...marker, time: totalTime, price };
+      const totalTime = (durationToUser + durationToDestination) / 60; // in minutes
+      const price = (totalTime * 0.5).toFixed(2); // simple pricing logic
+
+      if (!durationToUser || isNaN(durationToUser)) {
+        return { ...marker, time: 5, price: (5 * 0.5).toFixed(2) };
+      }
     });
 
     return await Promise.all(timesPromises);
   } catch (error) {
-    console.error("Error calculating driver times:", error);
+    console.error("Error calculating driver times (ORS):", error);
+    return [];
   }
-
-  // try {
-  //   const timesPromises = markers.map(async (marker) => {
-  //     // 1. Time from driver → user
-  //     const resToUser = await fetch(
-  //       "https://api.openrouteservice.org/v2/directions/driving-car",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${orsApiKey}`,
-  //         },
-  //         body: JSON.stringify({
-  //           coordinates: [
-  //             [marker.longitude, marker.latitude],
-  //             [userLongitude, userLatitude],
-  //           ],
-  //         }),
-  //       },
-  //     );
-  //
-  //     const dataToUser = await resToUser.json();
-  //     const durationToUser =
-  //       dataToUser?.features?.[0]?.properties?.segments?.[0]?.duration || 0; // In seconds
-  //
-  //     // 2. Time from user → destination
-  //     const resToDestination = await fetch(
-  //       "https://api.openrouteservice.org/v2/directions/driving-car",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${orsApiKey}`,
-  //         },
-  //         body: JSON.stringify({
-  //           coordinates: [
-  //             [userLongitude, userLatitude],
-  //             [destinationLongitude, destinationLatitude],
-  //           ],
-  //         }),
-  //       },
-  //     );
-  //
-  //     const dataToDestination = await resToDestination.json();
-  //     const durationToDestination =
-  //       dataToDestination?.features?.[0]?.properties?.segments?.[0]?.duration ||
-  //       0;
-  //
-  //     const totalTime = (durationToUser + durationToDestination) / 60; // minutes
-  //     const price = (totalTime * 0.5).toFixed(2);
-  //
-  //     return { ...marker, time: totalTime, price };
-  //   });
-
-  //   return await Promise.all(timesPromises);
-  // } catch (error) {
-  //   console.error("Error calculating driver times (ORS):", error);
-  // }
 };

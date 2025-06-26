@@ -7,7 +7,7 @@ import { formatTime } from "@/lib/utils";
 import { useDriverStore, useLocationStore } from "@/store";
 import Payment from "@/components/Payment";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { StripeProvider } from "@stripe/stripe-react-native";
 
 const BookRide = () => {
