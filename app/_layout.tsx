@@ -7,6 +7,10 @@ import "../global.css";
 
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import { LogBox } from "react-native";
+
+SplashScreen.preventAutoHideAsync();
+LogBox.ignoreLogs(["Clerk:"]);
 
 export default function RootLayout() {
   const [loaded] = useFonts({
