@@ -43,4 +43,5 @@ const InputField = ({
     </TouchableWithoutFeedback>
   </KeyboardAvoidingView>
 );
+
 export default InputField;
